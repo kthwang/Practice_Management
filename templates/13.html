@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8" />
+<title>{% block title %}과제13_황경태{% endblock %}</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+<!-- Loading mathjax macro -->
+<!-- Load mathjax -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
+    <!-- MathJax configuration -->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+            processEscapes: true,
+            processEnvironments: true
+        },
+        // Center justify equations in code and markdown cells. Elsewhere
+        // we use CSS to left justify single line equations in code cells.
+        displayAlign: 'center',
+        "HTML-CSS": {
+            styles: {'.MathJax_Display': {"margin": 0}},
+            linebreaks: { automatic: true }
+        }
+    });
+    </script>
+    <!-- End of mathjax configuration --></head>
+<body>
+  {% block body %}
+  <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="k">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">chardet</span>
+<span class="kn">from</span> <span class="nn">pymongo</span> <span class="k">import</span> <span class="n">MongoClient</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">MongoClient</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="n">list_database_names</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[3]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;admin&#39;, &#39;config&#39;, &#39;createimage&#39;, &#39;local&#39;, &#39;newDB&#39;, &#39;sns&#39;, &#39;test&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="n">createimage</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[4]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Collection(Database(MongoClient(host=[&#39;localhost:27017&#39;], document_class=dict, tz_aware=False, connect=True), &#39;createimage&#39;), &#39;image&#39;)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_image</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">imageByte</span><span class="p">):</span>
+    <span class="n">new_image</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+        <span class="s1">&#39;imageByte&#39;</span><span class="p">:</span><span class="n">imageByte</span>
+         <span class="p">}</span>
+    
+    <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">createimage</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">insert_one</span><span class="p">(</span><span class="n">new_image</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">url</span> <span class="o">=</span><span class="s2">&quot;https://www.google.com/search?q=</span><span class="si">%E</span><span class="s2">A%B3%A0</span><span class="si">%E</span><span class="s2">C</span><span class="si">%96%</span><span class="s2">91</span><span class="si">%E</span><span class="s2">C%9D%B4&amp;source=lnms&amp;tbm=isch&amp;sa=X&amp;ved=0ahUKEwjU37XwlKncAhUDlZQKHSE7CiMQ_AUICigB&amp;biw=1280&amp;bih=643&quot;</span> 
+<span class="n">select</span> <span class="o">=</span> <span class="s2">&quot;a &gt; img&quot;</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">getContent</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">select</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">num_retries</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="mi">500</span><span class="o">&lt;=</span><span class="n">html</span><span class="o">.</span><span class="n">status_code</span><span class="o">&lt;</span><span class="mi">600</span> <span class="ow">and</span> <span class="n">num_retries</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">html</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">getUrl</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">num_retries</span> <span class="o">=</span> <span class="n">num_retries</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="n">dom</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;lxml&quot;</span><span class="p">)</span>
+ 
+    <span class="n">imgsrc</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">select</span><span class="p">)</span>
+    
+    
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">imgsrc</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">])</span>
+        <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">],</span> <span class="s1">&#39;img/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">imgsrc</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">row</span><span class="p">))</span><span class="o">+</span> <span class="s2">&quot;.jpg&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;img/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">imgsrc</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">row</span><span class="p">))</span><span class="o">+</span> <span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">imageFile</span><span class="p">:</span>
+            <span class="n">textImage</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">imageFile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="n">create_image</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">textImage</span><span class="p">)</span>
+            
+        
+
+    
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">getContent</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">select</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUxIYb2BaJKQvgEBqLkv2KdW6rvzyaHF3VFcSc04CMoVVeA6YnHDJOzA
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqkqYn8-jFFjJepnm62N6Yv4EuwlKj21vaHs-Mub03sEmnx4vPFYoeHxs
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQClK6Awp6AThCUg-Uo64AfCh56x7WocJsiaPb7yf5ED79hbG95ICd5YtY
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtOEZHIILjU1OE-fmLrbR3Tm2ufzPTiahBw8IIJeII5PAxhj9mXDqqs7HHyQ
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgaTuGT8APY8oeDnV7Scax8l3jfjoyMSIrHQ21BBcwb5ktnuILhHTA_3Cb
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLbdHYuvYAVlkillsPQuYpP_RRZKtvo5mQho9bAkiZenwER0cqm-XVXk8
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGFpvZJUo7N4u55__KiFYP1JkFi2AVknbOlcjCezqL971vkLb_zlpuJfXt3w
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJk-hOc2oPpGxj56klvSz28-Z-RiNdYktj3lIQlyY8WTuP8vxMCf3Qcpo
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmUYGeJZgw7CjqfZx0RUGNSHX0fl2NParfqocKmxNLue6kUUG16SMacvA
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy5OQuNoROfzPdA8tQAGOghKlA56-0KeKmru04cp_WysJALhScA1aWQ15-
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXlbK6q62LohnGJW2oOUnyPotRPfslGLMzROJrbcfrMS2_nyHcTbqo8WmJ
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdrKhEgr4Lc8x6oNiJ7DwkKJbbLqhmo3jX-vaedjGOPWxzYyYjwdXxay4
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTI7s_GpEJe3jMo5IKfIllg6lG02SypFh7ht0PBF4EZjemBEoAQA6_qDX9a
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdLs8QY86xaTXoPxe1raa7BpHJof7ZB3D1xfHQ1weKxkS7sSPz0DNFYVEC
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZKEdYZRULwF7Wc724FFbpQkLKpOiH-fUgHF82dItWrs8hyWP3WLERKdk
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyyS1M0JQaK84AKNng8JvF9A9WpVC6TDc11Wwpk0UJIeWFo0c3exaiSHMU
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTepK0q3zdVEz_A5CvvUAIoPIWM_j7dG59qnf4OCjvB3qSXRUuhlf0abRbz
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTytlJoR7IifqiRVm-sI0tjkifgfUE42SpZUDvKULRDmUJt0BE4zCIlDIKi
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_0UAWoBkCJ-8ZBRv-XrIrWWf6ofXee53mRW5G52-RiNWETxQsU8TIINo
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUUPK3KttBjHT_Gy9HrJWv2sWqyVeMblNULn9h9qHRy2ZiG9nn5xg9cg
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    </div>
+  </div>
+  {% endblock %}
+</body>
+
+ 
+
+
+</html>
